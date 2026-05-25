@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  backforfrontend:
+    build: .
+    container_name: backforfrontend
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    env_file: .env.example
+    environment:
+      - PORT=3000
+      - USERS_URL=http://ms-users:3002/api
+      - REPORTS_URL=http://ms-mascotas:3003
+    networks:
+      - sanos-y-salvos-net
+
+networks:
+  sanos-y-salvos-net:
+    external: true
