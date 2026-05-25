@@ -82,4 +82,4 @@ Consejos y buenas prácticas
 	A: en `.env` pon `REPORTS_URL=http://host.docker.internal:3003` o `http://localhost:3003` cuando ejecutas el BFF en tu máquina local.
 
 
-#jiji
+#sss
