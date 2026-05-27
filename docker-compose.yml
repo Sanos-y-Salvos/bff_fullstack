@@ -1,7 +1,8 @@
 version: '3.8'
 services:
   backforfrontend:
-    build: .
+    # Usar la imagen publicada en Docker Hub en lugar de construir localmente
+    image: benjamorenoo/bff-sanos-salvos:latest
     container_name: backforfrontend
     restart: unless-stopped
     ports:
