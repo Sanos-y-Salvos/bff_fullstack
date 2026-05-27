@@ -1,0 +1,45 @@
+# Node dependencies
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Runtime env files
+
+
+# Build outputs
+dist/
+build/
+coverage/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# IDE/editor
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker-related (local overrides)
+docker-compose.override.yml
+
+
+# Misc
+.npm
+.cache/
+*.swp
+*~
+
+# Test reports (generados)
+test_report.json
+
+# Axios/HTTP debug
+axios-debug.log
+
+# ESLint cache
+.eslintcache

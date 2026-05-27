@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
     ports:
       - 3000:3000
-    env_file: .env.example
+    env_file: .env
     environment:
       - PORT=3000
       - USERS_URL=http://ms-users:3002/api
