@@ -1,4 +1,4 @@
-version: '3.8'
+
 services:
   backforfrontend:
     # Usar la imagen publicada en Docker Hub en lugar de construir localmente
@@ -7,11 +7,10 @@ services:
     restart: unless-stopped
     ports:
       - 3000:3000
-    env_file: .env
     environment:
-      - PORT=3000
-      - USERS_URL=http://ms-users:3002/api
-      - REPORTS_URL=http://ms-mascotas:3003
+      PORT: "3000"
+      USERS_URL: "http://ms-users:3002/api"
+      REPORTS_URL: "http://ms-mascotas:3003"
     networks:
       - sanos-y-salvos-net
 
