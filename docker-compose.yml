@@ -4,6 +4,7 @@ services:
     # Usar la imagen publicada en Docker Hub en lugar de construir localmente
     image: benjamorenoo/bff-sanos-salvos:latest
     container_name: backforfrontend
+    platform: linux/amd64
     restart: unless-stopped
     ports:
       - 3000:3000
