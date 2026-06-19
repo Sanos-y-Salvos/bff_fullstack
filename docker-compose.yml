@@ -6,14 +6,18 @@ services:
     restart: unless-stopped
     ports:
       - 3000:3000
-    env_file: .env.example
     environment:
       - PORT=3000
+      - AUTH_URL=http://ms-auth:3001/api
       - USERS_URL=http://ms-users:3002/api
       - REPORTS_URL=http://ms-mascotas:3003
+      - MASCOTAS_URL=http://ms-mascotas:3003
+      - LOCALIZACION_URL=http://ms-localizacion:3004
+      - SOPORTE_URL=http://ms-soporte:3005/api
     networks:
       - sanos-y-salvos-net
 
 networks:
   sanos-y-salvos-net:
     external: true
+    name: mascotas_sanos-y-salvos-net

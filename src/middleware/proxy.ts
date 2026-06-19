@@ -7,37 +7,60 @@ function buildUrl(base: string, path: string, query: any) {
   return params ? `${url}?${params}` : url;
 }
 
-export default function proxyHandler(envVar: string, defaultUrl: string) {
+export default function proxyHandler(envVar: string, defaultUrl: string, stripPrefix?: string) {
   const base = process.env[envVar] || defaultUrl;
 
   return async (req: Request, res: Response) => {
     const attempted: string[] = [];
     const method = req.method as Method;
     const headers = { ...req.headers };
+    // hop-by-hop headers must not be forwarded to upstream services
     delete (headers as any).host;
-    // Remove headers that may interfere when axios re-sends the request
-    delete (headers as any)['content-length'];
     delete (headers as any)['transfer-encoding'];
-    delete (headers as any)['content-encoding'];
+    delete (headers as any)['connection'];
+    delete (headers as any)['keep-alive'];
+    delete (headers as any)['proxy-authenticate'];
+    delete (headers as any)['proxy-authorization'];
+    delete (headers as any)['te'];
+    delete (headers as any)['trailers'];
+    delete (headers as any)['upgrade'];
+
+    // Forward the raw, unparsed request stream so binary/multipart bodies
+    // (e.g. file uploads) reach the upstream service byte-for-byte intact.
+    const hasBody = !['GET', 'HEAD'].includes(method);
 
     const tryRequest = async (targetBase: string) => {
       // Remove the '/api' prefix when forwarding so upstream services receive their expected paths
-      const forwardPath = req.originalUrl.replace(/^\/api/, '') || '/';
+      let forwardPath = req.originalUrl.replace(/^\/api/, '') || '/';
+      if (stripPrefix) {
+        forwardPath = forwardPath.replace(new RegExp(`^${stripPrefix}`), '') || '/';
+      }
       const forwardUrl = buildUrl(targetBase, forwardPath, req.query);
       attempted.push(forwardUrl);
       return axios.request({
         url: forwardUrl,
         method,
         headers,
-        data: req.body,
+        data: hasBody ? req : undefined,
+        responseType: 'arraybuffer',
         validateStatus: () => true
       });
+    };
+
+    // axios transparently decompresses the response, so content-encoding/length
+    // from upstream no longer match the bytes we're about to send.
+    const sendResponse = (resp: { status: number; headers: any; data: any }) => {
+      const respHeaders = { ...resp.headers };
+      delete respHeaders['content-encoding'];
+      delete respHeaders['content-length'];
+      delete respHeaders['transfer-encoding'];
+      return res.status(resp.status).set(respHeaders).send(resp.data);
     };
 
     try {
       // First attempt with configured base
       const resp = await tryRequest(base);
-      return res.status(resp.status).set(resp.headers).send(resp.data);
+      return sendResponse(resp);
     } catch (err: any) {
       console.error('Proxy first attempt error:', err && err.message ? err.message : err);
 
@@ -47,7 +70,7 @@ export default function proxyHandler(envVar: string, defaultUrl: string) {
           const altBase = base.replace('localhost', 'host.docker.internal').replace('127.0.0.1', 'host.docker.internal');
           try {
             const resp2 = await tryRequest(altBase);
-            return res.status(resp2.status).set(resp2.headers).send(resp2.data);
+            return sendResponse(resp2);
           } catch (err2: any) {
             console.error('Proxy second attempt error:', err2 && err2.message ? err2.message : err2);
             return res.status(502).json({ error: 'Bad Gateway', details: { message: err2.message, code: err2.code, attempted } });
