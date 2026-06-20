@@ -30,8 +30,9 @@ export default function proxyHandler(envVar: string, defaultUrl: string, stripPr
     const hasBody = !['GET', 'HEAD'].includes(method);
 
     const tryRequest = async (targetBase: string) => {
-      // Remove the '/api' prefix when forwarding so upstream services receive their expected paths
-      let forwardPath = req.originalUrl.replace(/^\/api/, '') || '/';
+      // req.path is already relative to the /api mount point and has no query string.
+      // Using req.originalUrl here would duplicate the query string since buildUrl also appends req.query.
+      let forwardPath = req.path;
       if (stripPrefix) {
         forwardPath = forwardPath.replace(new RegExp(`^${stripPrefix}`), '') || '/';
       }
