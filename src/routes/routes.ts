@@ -29,4 +29,8 @@ router.all('/tickets', proxyHandler('SOPORTE_URL', 'http://localhost:3005'));
 router.all('/chatbot/*', proxyHandler('SOPORTE_URL', 'http://localhost:3005'));
 router.all('/chatbot', proxyHandler('SOPORTE_URL', 'http://localhost:3005'));
 
+// Proxy matching — strip /matching prefix so ms-matching receives /matches/...
+router.all('/matching/*', proxyHandler('MATCHING_URL', 'http://localhost:3007', '/matching'));
+router.all('/matching', proxyHandler('MATCHING_URL', 'http://localhost:3007', '/matching'));
+
 export default router;

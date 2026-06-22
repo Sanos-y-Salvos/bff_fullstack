@@ -14,6 +14,7 @@ services:
       - MASCOTAS_URL=http://ms-mascotas:3003
       - LOCALIZACION_URL=http://ms-localizacion:3004
       - SOPORTE_URL=http://ms-soporte:3005/api
+      - MATCHING_URL=http://ms-matching:3005
     networks:
       - sanos-y-salvos-net
 
